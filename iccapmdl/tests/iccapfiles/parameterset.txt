@@ -1,0 +1,17 @@
+LINK PS "Parameter Set"
+{
+applic "Edit" 0 770 82
+subapp "Parameter Table" 1
+data
+{
+PSTABLE "Parameter Table"
+{
+param VC " 1.889 "
+param EPL " 3.100 "
+param DELTA " 5.200 "
+param GAMMA " 514.0m"
+param DTIME " 10.00m"
+}
+}
+}
+
