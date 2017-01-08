@@ -1,5 +1,5 @@
 '''IC-CAP .mdl file parsing routines'''
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 import re
 from os import SEEK_CUR
 import logging
@@ -96,7 +96,7 @@ def read_points(stream, npoints):
 def parsefile(stream):
     '''Read Node tree from file'''
     path = [Node(b'Main', b'', [], {})]
-    handlers = OrderedDict()
+    handlers = {}
 
     def handle(*prefix):
         '''Register function as handler for tokens starting with prefix'''
@@ -193,11 +193,9 @@ def parsefile(stream):
             token = readtoken(stream)
         except StopIteration:
             return path[0]
-        for prefix, handler in handlers.items():
-            if token[:len(prefix)] == prefix:
-                handler(*token[len(prefix):])
-                break
-        else:
+        try:
+            handlers[token[0]](*token[1:])
+        except KeyError:
             logger.debug('Skip token %s', token[0])
 
 
