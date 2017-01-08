@@ -98,7 +98,7 @@ def parsefile(stream):
     path = [Node(b'Main', b'', [], {})]
     handlers = {}
 
-    def handle(*prefix):
+    def handle(prefix):
         '''Register function as handler for tokens starting with prefix'''
         def wrap(func):
             '''-'''
@@ -132,9 +132,11 @@ def parsefile(stream):
         path.append(Node(b'', b'', [], {}))
         assert readtoken(stream) == LBRACE
 
-    @handle(b'TABLE', b'"Variable Table"')
-    def _dut_model_vars(*dummy):
+    @handle(b'TABLE')
+    def _dut_model_vars(tabletype, *dummy):
         '''Read dut/model vars into last Node in path'''
+        if tabletype != b'"Variable Table"':
+            return
         assert readtoken(stream) == LBRACE
         while True:
             token = readtoken(stream)
@@ -176,17 +178,18 @@ def parsefile(stream):
             logger.debug('Dataset at %s shape %s dtype %s', stream.tell(),
                          dset.shape, dset.dtype)
 
-    @handle(b'point')
-    def _point(*token):
-        '''Should have been skipped by dataset handler, raise exception'''
-        raise Exception(*token)
-
     @handle(LBRACE[0])
     def _lbrace():
         '''This wasn't read by other handlers so skip the block'''
         logger.debug('Skip from %s at %s', token[0], stream.tell())
         skipblock(stream)
         logger.debug('Skip to %s', stream.tell())
+
+    @handle(b'element')
+    @handle(b'point')
+    def _mishandled(*token):
+        '''Should have been skipped by other handler, raise exception'''
+        raise Exception(*token)
 
     while True:
         try:
@@ -197,20 +200,3 @@ def parsefile(stream):
             handlers[token[0]](*token[1:])
         except KeyError:
             logger.debug('Skip token %s', token[0])
-
-
-#      1 View
-#     37 CNTABLE
-#     38 circuitdeck
-#     38 PSTABLE
-#    244 dataset
-#    244 datasize
-#    244 type
-#    246 TABLE
-#    824 data
-#    862 LINK
-#   1769 HYPTABLE
-#   4058 {
-#   4058 }
-#  12177 element
-# 537584 point
