@@ -22,15 +22,15 @@ LINK_TYPES = {
 }
 
 
+MIN_POINT_LENGTH = len('point 0 1 1 0 0\n')
 def skippoints(stream, npoints):
     '''Skip a dataset'''
     position = 0
     while npoints - position > 3:
-        # Each point line is at least 16 bytes
-        stream.seek((npoints - position - 1) * 16, SEEK_CUR)
+        stream.seek((npoints - position - 1) * MIN_POINT_LENGTH, SEEK_CUR)
         # Discard partial line
         stream.readline()
-        # Find current poisition
+        # Find current position
         words = WORD.findall(stream.readline())
         if not words[0] == b'point':
             raise Exception(words)
@@ -38,6 +38,7 @@ def skippoints(stream, npoints):
     for position in range(position, npoints-1):
         stream.readline()
     line = stream.readline()
+    # If I'm not at index (npoints - 1), something went wrong
     if int(WORD.findall(line)[1]) != npoints - 1:
         raise Exception(line)
 
