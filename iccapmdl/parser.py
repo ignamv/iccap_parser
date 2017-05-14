@@ -85,8 +85,8 @@ def read_points(stream, npoints):
     '''Read dataset as numpy array'''
     value = np.genfromtxt(stream, delimiter=' ', max_rows=npoints,
                           usecols=(4, 5), unpack=True)
-    if (value[:, 1] == 0).all():
-        return value[:, 0]
+    if (value[1, :] == 0).all():
+        return value[0, :]
     else:
         return value.view(complex)
 
