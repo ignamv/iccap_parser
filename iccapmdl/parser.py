@@ -45,10 +45,7 @@ def skippoints(stream, npoints):
 
 def readtoken(stream):
     '''Read a token (list of words in a line) from file'''
-    line = stream.readline()
-    if not line:
-        raise StopIteration()
-    return tuple(WORD.findall(line))
+    return tuple(WORD.findall(stream.readline()))
 
 
 def tokens(stream):
@@ -192,12 +189,16 @@ def parsefile(stream):
         '''Should have been skipped by other handler, raise exception'''
         raise Exception(*token)
 
+    
+    @handle(b'')
+    def _eof(*_token):
+        raise StopIteration()
+
     while True:
-        try:
-            token = readtoken(stream)
-        except StopIteration:
-            return path[0]
+        token = readtoken(stream)
         try:
             handlers[token[0]](*token[1:])
         except KeyError:
             logger.debug('Skip token %s', token[0])
+        except StopIteration:
+            return path[0]
