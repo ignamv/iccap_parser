@@ -93,7 +93,7 @@ def read_points(stream, npoints):
 
 def parsefile(stream):
     '''Read Node tree from file'''
-    path = [Node(b'Main', b'', [], {})]
+    path = [Node('Main', '', [], {})]
     handlers = {}
 
     def handle(prefix):
@@ -119,8 +119,8 @@ def parsefile(stream):
     @handle(b'LINK')
     def _link(type_, name, *dummy):
         '''Add empty node to path'''
-        name = name[1:-1]
-        type_ = LINK_TYPES.get(type_, type_)
+        name = name[1:-1].decode('ascii')
+        type_ = LINK_TYPES.get(type_, type_.decode('ascii'))
         path.append(Node(type_, name, [], {}))
         assert readtoken(stream) == LBRACE
 
@@ -139,10 +139,10 @@ def parsefile(stream):
         while True:
             token = readtoken(stream)
             assert token[0] == b'element'
-            name = token[3][1:-1]
+            name = token[3][1:-1].decode('ascii')
             token = readtoken(stream)
             assert token[0] == b'element'
-            value = token[3][1:-1]
+            value = token[3][1:-1].decode('ascii')
             if not name and not value:
                 assert readtoken(stream) == RBRACE
                 break
@@ -157,7 +157,9 @@ def parsefile(stream):
             if token == RBRACE:
                 break
             assert token[0] == b'element'
-            path[-1].vars[token[1][1:-1]] = token[2][1:-1]
+            name = token[1][1:-1].decode('ascii')
+            value = token[2][1:-1].decode('ascii')
+            path[-1].vars[name] = value
 
     @handle(b'dataset\r\n')
     def _dataset():
