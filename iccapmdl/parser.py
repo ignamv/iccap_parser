@@ -14,11 +14,11 @@ WORD = re.compile(rb'[^" ]+|"[^"]*"|^\s*$')
 LBRACE = (b'{\r\n',)
 RBRACE = (b'}\r\n',)
 LINK_TYPES = {
-    'MODEL': 'Model',
-    'DUT': 'Dut',
-    'DAT': 'Setup',
-    'SWEEP': 'Input',
-    'OUT': 'Output'
+    b'MODEL': 'Model',
+    b'DUT': 'Dut',
+    b'DAT': 'Setup',
+    b'SWEEP': 'Input',
+    b'OUT': 'Output'
 }
 
 
