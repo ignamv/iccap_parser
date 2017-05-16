@@ -123,8 +123,8 @@ def parsefile(stream):
     @handle(b'LINK')
     def _link(type_, name, *dummy):
         '''Add empty node to path'''
-        name = name[1:-1].decode('ascii')
-        type_ = LINK_TYPES.get(type_, type_.decode('ascii'))
+        name = name[1:-1].decode('utf-8')
+        type_ = LINK_TYPES.get(type_, type_.decode('utf-8'))
         path.append(Node(type_, name, [], {}))
         assert readtoken(stream) == LBRACE
 
@@ -142,11 +142,13 @@ def parsefile(stream):
         assert readtoken(stream) == LBRACE
         while True:
             token = readtoken(stream)
+            if token[0] == b'View':
+                continue
             assert token[0] == b'element'
-            name = token[3][1:-1].decode('ascii')
+            name = token[3][1:-1].decode('utf-8')
             token = readtoken(stream)
             assert token[0] == b'element'
-            value = token[3][1:-1].decode('ascii')
+            value = token[3][1:-1].decode('utf-8')
             if not name and not value:
                 assert readtoken(stream) == RBRACE
                 break
@@ -161,8 +163,8 @@ def parsefile(stream):
             if token == RBRACE:
                 break
             assert token[0] == b'element'
-            name = token[1][1:-1].decode('ascii')
-            value = token[2][1:-1].decode('ascii')
+            name = token[1][1:-1].decode('utf-8')
+            value = token[2][1:-1].decode('utf-8')
             path[-1].vars[name] = value
 
     @handle(b'dataset\r\n')
