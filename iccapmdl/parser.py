@@ -4,6 +4,7 @@ import re
 from os import SEEK_CUR
 import logging
 import numpy as np
+from dataset import read_iccap_dataset
 logger = logging.getLogger(__name__)
 
 __all__ = [
@@ -83,12 +84,15 @@ def skipblock(stream):
 
 def read_points(stream, npoints):
     '''Read dataset as numpy array'''
-    value = np.genfromtxt(stream, delimiter=' ', max_rows=npoints,
-                          usecols=(4, 5), unpack=True)
-    if (value[1, :] == 0).all():
-        return value[0, :]
+    value = np.empty((npoints, 2), dtype=np.double)
+    logger.debug('Reading points at offset %s', stream.tell())
+    read = read_iccap_dataset(stream.fileno(), stream.tell(), value)
+    logger.debug('Skipping %s bytes', read)
+    stream.seek(read, SEEK_CUR)
+    if (value[:, 1] == 0).all():
+        return value[:, 0]
     else:
-        return value.view(complex)
+        return value.view(np.complex128)
 
 
 def parsefile(stream):
